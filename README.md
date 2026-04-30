@@ -7,7 +7,7 @@
 
 ## What this is
 
-The Historical Correspondent is an AI-powered classroom tool designed to run alongside [Reacting to the Past](https://reactingconsortium.org/) (RTTP) simulations. It does not replace any student role. Instead it provides three things that no student is assigned to do:
+The Historical Correspondent is an AI-powered classroom tool designed to run alongside [Reacting to the Past](https://reactingconsortium.org/) (RTTP) games. It does not replace any student role. Instead it provides three things that no student is assigned to do:
 
 - **The Press** — period-appropriate newspaper dispatches, bulletins, and headlines generated on demand
 - **Vox Populi** — the voice of national publics (crowds, workers, families) reacting to events as they unfold
