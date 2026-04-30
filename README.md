@@ -1,5 +1,5 @@
 # The Historical Correspondent
-### A classroom companion for Reacting to the Past simulations
+### A classroom companion for Reacting to the Past 
 
 *© Alastair Kocho-Williams*
 
