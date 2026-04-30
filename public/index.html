@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Historical Correspondent — RTTP</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Special+Elite&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#f5f4f0;display:flex;justify-content:center;padding:24px 12px;min-height:100vh;}
+.app{font-family:'Courier Prime',monospace;background:#fff;border:0.5px solid #ddd;border-radius:12px;overflow:hidden;width:100%;max-width:680px;}
+.masthead{background:#f9f8f5;border-bottom:1px solid #ccc;padding:8px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.masthead-title{font-family:'IM Fell English',serif;font-size:18px;font-weight:400;color:#111;letter-spacing:.02em;white-space:nowrap;}
+.section-bar{display:flex;gap:4px;}
+.sec-btn{padding:4px 14px;font-family:'Special Elite',cursive;font-size:11px;background:transparent;border:0.5px solid #bbb;border-radius:999px;color:#666;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px;}
+.sec-btn.active{background:#111;color:#fff;border-color:#111;}
+.sec-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.scenario-bar{display:flex;border-bottom:0.5px solid #ddd;}
+.sc-btn{flex:1;padding:6px 4px;font-family:'Special Elite',cursive;font-size:11px;background:transparent;border:none;border-right:0.5px solid #ddd;color:#888;cursor:pointer;text-align:center;line-height:1.3;transition:background .15s,color .15s;}
+.sc-btn:last-child{border-right:none;}
+.sc-btn.active{background:#f9f8f5;color:#111;font-weight:700;}
+.sc-btn:hover:not(.active){background:#f9f8f5;}
+.tab-bar{display:flex;border-bottom:0.5px solid #ddd;background:#f9f8f5;}
+.tab{flex:1;padding:7px 6px;font-family:'Special Elite',cursive;font-size:11px;background:transparent;border:none;border-right:0.5px solid #ddd;color:#888;cursor:pointer;text-align:center;transition:all .15s;}
+.tab:last-child{border-right:none;}
+.tab.active{background:#fff;color:#111;font-weight:700;border-bottom:2px solid #111;}
+.panel{display:none;flex-direction:column;}
+.panel.active{display:flex;}
+.mode-bar{display:flex;gap:5px;padding:7px 12px;border-bottom:0.5px solid #ddd;background:#f9f8f5;flex-wrap:wrap;}
+.chip{font-family:'Special Elite',cursive;font-size:11px;padding:3px 10px;border-radius:999px;border:0.5px solid #bbb;background:#fff;color:#666;cursor:pointer;transition:all .15s;}
+.chip.active{background:#111;color:#fff;border-color:#111;}
+.chat-area{overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;min-height:280px;max-height:310px;}
+.msg{display:flex;gap:8px;}
+.msg.user{flex-direction:row-reverse;}
+.av{width:26px;height:26px;border-radius:50%;border:0.5px solid #ddd;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;font-family:'Special Elite',cursive;background:#f9f8f5;color:#888;}
+.bub{max-width:84%;padding:8px 11px;border-radius:4px;font-size:12px;line-height:1.55;color:#222;border:0.5px solid #e8e8e8;background:#fff;font-family:'Courier Prime',monospace;white-space:pre-wrap;}
+.msg.user .bub{background:#f9f8f5;border-color:#ddd;}
+.src{font-size:10px;color:#aaa;margin-top:3px;font-style:italic;font-family:'IM Fell English',serif;}
+.sysmsg{text-align:center;font-size:10px;color:#aaa;font-family:'Special Elite',cursive;padding:3px 0;}
+.dots{display:flex;gap:4px;align-items:center;padding:4px 0;}
+.dot{width:5px;height:5px;border-radius:50%;background:#aaa;animation:blink 1.2s infinite;}
+.dot:nth-child(2){animation-delay:.2s;}.dot:nth-child(3){animation-delay:.4s;}
+@keyframes blink{0%,80%,100%{opacity:.3;}40%{opacity:1;}}
+.mood-bar{padding:8px 12px;border-top:0.5px solid #ddd;background:#f9f8f5;}
+.mood-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.mood-title{font-size:10px;font-family:'Special Elite',cursive;color:#888;letter-spacing:.05em;text-transform:uppercase;}
+.reset-btn{font-family:'Special Elite',cursive;font-size:10px;color:#aaa;background:none;border:none;cursor:pointer;text-decoration:underline;}
+.reset-btn:hover{color:#666;}
+.mood-grid{display:flex;flex-direction:column;gap:4px;}
+.mood-row{display:flex;align-items:baseline;gap:8px;}
+.mood-faction{font-family:'Special Elite',cursive;font-size:10px;color:#aaa;width:110px;flex-shrink:0;text-transform:uppercase;letter-spacing:.04em;}
+.mood-label{font-family:'IM Fell English',serif;font-size:12px;color:#666;line-height:1.3;font-style:italic;transition:color .4s;}
+.mood-label.updating{color:#111;}
+.inject-bar{padding:7px 12px;border-top:0.5px solid #ddd;background:#f9f8f5;}
+.inj-label{font-size:10px;color:#aaa;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;font-family:'Special Elite',cursive;}
+.inj-row{display:flex;gap:6px;}
+select{flex:1;padding:5px 7px;font-family:'Courier Prime',monospace;font-size:12px;background:#fff;border:0.5px solid #bbb;border-radius:8px;color:#222;cursor:pointer;}
+.inj-btn{padding:5px 12px;font-family:'Special Elite',cursive;font-size:12px;background:#111;color:#fff;border:none;border-radius:8px;cursor:pointer;transition:opacity .15s;}
+.inj-btn:hover{opacity:.8;}
+.input-row{display:flex;gap:7px;padding:8px 12px;border-top:0.5px solid #ddd;}
+textarea.ci{flex:1;padding:7px 9px;font-family:'Courier Prime',monospace;font-size:12px;background:#fff;border:0.5px solid #bbb;border-radius:8px;color:#222;resize:none;height:36px;}
+.send-btn{padding:7px 14px;font-family:'Special Elite',cursive;font-size:12px;background:#111;color:#fff;border:none;border-radius:8px;cursor:pointer;transition:opacity .15s;white-space:nowrap;}
+.send-btn:hover{opacity:.8;}
+.send-btn:disabled{opacity:.4;cursor:not-allowed;}
+.speech-panel{padding:12px;display:flex;flex-direction:column;gap:8px;}
+.sp-label{font-family:'Special Elite',cursive;font-size:10px;color:#aaa;text-transform:uppercase;letter-spacing:.1em;}
+.sp-fields{display:flex;gap:6px;}
+.sp-fields input{flex:1;padding:6px 9px;font-family:'Courier Prime',monospace;font-size:12px;background:#fff;border:0.5px solid #bbb;border-radius:8px;color:#222;}
+.transcript-box{width:100%;min-height:76px;padding:8px 10px;font-family:'Courier Prime',monospace;font-size:12px;background:#fff;border:0.5px solid #bbb;border-radius:8px;color:#222;resize:vertical;line-height:1.5;}
+.rec-row{display:flex;gap:6px;align-items:center;}
+.rec-btn{padding:5px 12px;font-family:'Special Elite',cursive;font-size:12px;border:0.5px solid #bbb;border-radius:8px;cursor:pointer;transition:all .15s;background:#fff;color:#222;white-space:nowrap;}
+.rec-btn.recording{background:#fff0f0;color:#c0392b;border-color:#c0392b;}
+.rec-status{font-size:11px;font-family:'Special Elite',cursive;color:#aaa;}
+.rec-status.live{color:#c0392b;}
+.action-row{display:flex;gap:6px;align-items:center;}
+.analyze-btn{padding:6px 16px;font-family:'Special Elite',cursive;font-size:12px;background:#111;color:#fff;border:none;border-radius:8px;cursor:pointer;transition:opacity .15s;}
+.analyze-btn:hover{opacity:.8;}
+.analyze-btn:disabled{opacity:.4;cursor:not-allowed;}
+.result-card{background:#f9f8f5;border:0.5px solid #ddd;border-radius:12px;padding:10px 12px;font-size:12px;line-height:1.6;font-family:'Courier Prime',monospace;color:#222;}
+.result-section{margin-bottom:8px;}
+.result-section:last-child{margin-bottom:0;}
+.result-label{font-family:'Special Elite',cursive;font-size:10px;color:#aaa;text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;}
+.archive-header{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;border-bottom:0.5px solid #ddd;background:#f9f8f5;}
+.archive-label{font-family:'Special Elite',cursive;font-size:11px;color:#666;}
+.archive-list{padding:10px 12px;display:flex;flex-direction:column;gap:8px;max-height:480px;overflow-y:auto;}
+.arch-empty{font-family:'Special Elite',cursive;font-size:12px;color:#aaa;text-align:center;padding:24px 0;}
+.arch-card{background:#fff;border:0.5px solid #e8e8e8;border-radius:12px;padding:10px 12px;}
+.arch-meta{display:flex;gap:6px;align-items:baseline;margin-bottom:5px;flex-wrap:wrap;}
+.arch-speaker{font-family:'Special Elite',cursive;font-size:12px;font-weight:700;color:#111;}
+.arch-faction{font-family:'Special Elite',cursive;font-size:10px;color:#666;padding:2px 7px;border:0.5px solid #bbb;border-radius:999px;}
+.arch-time{font-size:10px;color:#aaa;margin-left:auto;}
+.arch-summary{font-size:12px;color:#666;line-height:1.5;font-family:'Courier Prime',monospace;margin-bottom:4px;}
+.arch-press{font-size:11px;color:#aaa;font-style:italic;font-family:'IM Fell English',serif;border-left:2px solid #ddd;padding-left:8px;margin-top:4px;}
+.arch-note{font-size:11px;color:#aaa;font-family:'Courier Prime',monospace;margin-top:4px;}
+.arch-toggle{font-family:'Special Elite',cursive;font-size:10px;color:#aaa;cursor:pointer;background:none;border:none;padding:3px 0 0;text-decoration:underline;}
+.arch-transcript{font-size:11px;color:#aaa;font-family:'Courier Prime',monospace;margin-top:5px;padding:6px 8px;background:#f9f8f5;border-radius:8px;line-height:1.5;}
+.save-indicator{font-size:10px;font-family:'Special Elite',cursive;color:#aaa;padding:3px 12px;border-top:0.5px solid #ddd;background:#f9f8f5;text-align:right;min-height:20px;}
+.copyright{text-align:center;padding:6px 12px;background:#f9f8f5;border-top:0.5px solid #ddd;font-family:'Special Elite',cursive;font-size:10px;color:#aaa;letter-spacing:.06em;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="masthead">
+    <div class="masthead-title">The Historical Correspondent</div>
+    <div class="section-bar">
+      <button class="sec-btn active" id="sec-btn-A" onclick="setSection('A')"><span class="sec-dot" style="background:#378ADD;"></span>Section A</button>
+      <button class="sec-btn" id="sec-btn-B" onclick="setSection('B')"><span class="sec-dot" style="background:#D85A30;"></span>Section B</button>
+    </div>
+  </div>
+  <div class="scenario-bar">
+    <button class="sc-btn active" onclick="setSc('july1914')" id="btn-july1914">July Crisis 1914</button>
+    <button class="sc-btn" onclick="setSc('japan1941')" id="btn-japan1941">Japan 1941</button>
+    <button class="sc-btn" onclick="setSc('yalta1945')" id="btn-yalta1945">Restoring the World 1945</button>
+  </div>
+  <div class="tab-bar">
+    <button class="tab active" onclick="setTab('correspondent')" id="tab-correspondent">Correspondent</button>
+    <button class="tab" onclick="setTab('speech')" id="tab-speech">Speech Tracker</button>
+    <button class="tab" onclick="setTab('archive')" id="tab-archive">Archive (<span id="arch-count">0</span>)</button>
+  </div>
+
+  <div class="panel active" id="panel-correspondent">
+    <div class="mode-bar">
+      <div class="chip active" onclick="setMode('press')" id="chip-press">The Press</div>
+      <div class="chip" onclick="setMode('vox')" id="chip-vox">Vox Populi</div>
+      <div class="chip" onclick="setMode('rumor')" id="chip-rumor">Rumor Mill</div>
+      <div class="chip" onclick="setMode('instructor')" id="chip-instructor">Instructor</div>
+    </div>
+    <div class="chat-area" id="chat-area"></div>
+    <div class="mood-bar">
+      <div class="mood-header">
+        <span class="mood-title">Public mood</span>
+        <button class="reset-btn" onclick="resetMoods()">Reset</button>
+      </div>
+      <div class="mood-grid" id="mood-grid"></div>
+    </div>
+    <div class="inject-bar" id="inject-bar" style="display:none;">
+      <div class="inj-label">Inject a news event</div>
+      <div class="inj-row">
+        <select id="event-select"></select>
+        <button class="inj-btn" onclick="injectEvent()">Dispatch</button>
+      </div>
+    </div>
+    <div class="input-row">
+      <textarea class="ci" id="chat-input" placeholder="Ask the correspondent…" onkeydown="handleKey(event)"></textarea>
+      <button class="send-btn" id="send-btn" onclick="sendMsg()">Send</button>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-speech">
+    <div class="speech-panel">
+      <div class="sp-label" id="speech-section-label">Speaker — Section A</div>
+      <div class="sp-fields">
+        <input type="text" id="sp-name" placeholder="Speaker name / role" />
+        <select id="sp-faction"></select>
+      </div>
+      <div class="sp-label">Transcript</div>
+      <div class="rec-row">
+        <button class="rec-btn" id="rec-btn" onclick="toggleRecording()">Mic: Start</button>
+        <span class="rec-status" id="rec-status">Ready — or type / paste below</span>
+      </div>
+      <textarea class="transcript-box" id="transcript-box" placeholder="Transcript appears here during recording, or type / paste a speech…"></textarea>
+      <div class="action-row">
+        <button class="analyze-btn" id="analyze-btn" onclick="analyzeSpeech()">Analyze Speech</button>
+        <button class="rec-btn" onclick="clearSpeech()">Clear</button>
+      </div>
+      <div id="speech-result"></div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-archive">
+    <div class="archive-header">
+      <span class="archive-label" id="archive-label">Section A — July Crisis 1914</span>
+      <button class="reset-btn" onclick="clearArchive()">Clear archive</button>
+    </div>
+    <div class="archive-list" id="archive-list"></div>
+  </div>
+
+  <div class="save-indicator" id="save-indicator"></div>
+  <div class="copyright">&copy; Alastair Kocho-Williams</div>
+</div>
+
+<script>
+// ─── Scenario data ────────────────────────────────────────────────────────────
+const SC_DATA={
+  july1914:{
+    label:"July Crisis 1914",
+    defaultMoods:[
+      {name:"Austro-Hungarian public",label:"Bellicose, demanding punishment of Serbia"},
+      {name:"Russian public",         label:"Anxious, watching closely — solidarity with Serbia"},
+      {name:"German public",          label:"Confident, backing Austria-Hungary"},
+      {name:"British public",         label:"Largely indifferent, hoping it stays contained"},
+      {name:"French public",          label:"Uneasy, uncertain of Russia's next move"}
+    ],
+    factionNames:["Austria-Hungary","Russia","Germany","Britain","France","Serbia","Other"],
+    events:["Serbia delivers partial acceptance of ultimatum","Austria-Hungary mobilises against Serbia","Russia orders partial mobilisation","Germany declares war on Russia","German ultimatum to Belgium rejected","Britain declares war on Germany","Stock exchanges in London and Paris suspended","Crowds cheer war in Berlin and Vienna"],
+    sources:{press:["Reuters, Vienna","Wolff Bureau, Berlin","Agence Havas, Paris","The Times, London"],vox:["Street report, St. Petersburg","Café gossip, Vienna","Hyde Park, London","Boulevard des Capucines, Paris"],rumor:["Source undisclosed","Military attaché, unverified","Diplomatic courier, withheld"]},
+    moodCtx:"The July 1914 Crisis. Public mood reflects the spectrum from bellicosity and nationalism to anxiety and hope for diplomacy.",
+    system:`You are The Historical Correspondent for a Reacting to the Past simulation of the July 1914 Crisis. You are NOT a player — you are the atmosphere: press, street, rumor mill. It is late July 1914. THREE VOICES: (1) THE PRESS: period newspaper dispatches with datelines and wire service bylines (Reuters, Havas, Wolff). (2) VOX POPULI: voice of the public in Vienna, St. Petersburg, Berlin, London, Paris, Belgrade. (3) RUMOR MILL: unverified intelligence, marked UNCONFIRMED. RULES: Never speak for student roles. Exist in the present. Under 150 words unless asked for a full dispatch.`
+  },
+  japan1941:{
+    label:"Japan 1941",
+    defaultMoods:[
+      {name:"Japanese public", label:"Resolute, rallying behind Imperial policy"},
+      {name:"American public", label:"Wary but distracted — Europe feels closer"},
+      {name:"British public",  label:"Stretched thin, hoping Japan stays neutral"},
+      {name:"Chinese public",  label:"Exhausted, desperate for American intervention"}
+    ],
+    factionNames:["Imperial Japan","United States","Britain","China","Dutch East Indies","Other"],
+    events:["Hull Note delivered — Japan sees it as ultimatum","U.S. Pacific Fleet at anchor in Pearl Harbor","Dutch East Indies oil negotiations collapse","Japanese transports spotted in Gulf of Siam","Magic intercepts decoded — war message to embassies","Imperial Conference — final decision imminent","American war warning issued to Pacific commands","Japanese carrier task force puts to sea"],
+    sources:{press:["Associated Press, Tokyo","Asahi Shimbun","The Straits Times, Singapore","United Press, Washington"],vox:["Tokyo street report","San Francisco dockworker","Hong Kong correspondent","Manila resident"],rumor:["Naval intelligence fragment","Embassy source, unconfirmed","Intercepted communiqué, unverified"]},
+    moodCtx:"Japan's decision for war, late 1941. Public mood reflects Japanese militarist resolve, American distraction, British imperial overstretch, and Chinese desperation.",
+    system:`You are The Historical Correspondent for a Reacting to the Past simulation of Japan's decision for war, late 1941. You are NOT a player — atmosphere: radio dispatches, public sentiment, diplomatic rumor. It is November–December 1941. THREE VOICES: (1) THE PRESS/RADIO: Japanese editorials, American wire copy, British colonial bulletins. (2) VOX POPULI: Japanese public (militarist enthusiasm, kokutai), anxious American civilians, British colonial subjects. (3) RUMOR MILL: intelligence fragments — mark UNCONFIRMED. RULES: Never speak for student roles. Pearl Harbor is future and uncertain. Under 150 words unless a full dispatch is requested.`
+  },
+  yalta1945:{
+    label:"Restoring the World: Yalta 1945",
+    defaultMoods:[
+      {name:"American public",     label:"Cautiously hopeful — wants the war won and boys home"},
+      {name:"British public",      label:"War-weary, trusting Churchill, anxious about empire"},
+      {name:"Soviet public",       label:"Proud, grieving — twenty million dead demand security"},
+      {name:"Polish exile opinion",label:"Deeply alarmed — fears Soviet domination"},
+      {name:"Liberated Europe",    label:"Hopeful but fragile — watching the great powers decide their fate"}
+    ],
+    factionNames:["United States","Britain","Soviet Union","Poland","France","China","Other"],
+    events:["Big Three agree on German unconditional surrender terms","Soviet entry into Pacific War secretly agreed","Poland's eastern border confirmed at Curzon Line","Provisional Polish government composition disputed","Declaration on Liberated Europe announced","Voting formula for UN Security Council settled","Stalin demands sixteen Soviet republics in UN Assembly","Roosevelt's health alarms American delegation","Churchill presses for free elections in Eastern Europe","Yalta Agreement signed — communiqué released to press"],
+    sources:{press:["Associated Press, Yalta","Reuters, London","TASS, Moscow","The New York Times, Crimea bureau"],vox:["London street report","Moscow factory worker","Warsaw exile, London","American Gold Star mother"],rumor:["Delegation aide, not for attribution","Signals intelligence fragment","Diplomatic courier, withheld"]},
+    moodCtx:"The Yalta Conference, February 1945. Public mood reflects American optimism, British exhaustion, Soviet grief and determination, Polish exile despair, and the fragile hope of liberated Europe.",
+    system:`You are The Historical Correspondent for a Reacting to the Past simulation of the Yalta Conference, February 1945 — "Restoring the World." You are NOT a player — atmosphere: wartime press corps, voices of exhausted peoples, rumor mill. It is February 4–11, 1945. THREE VOICES: (1) THE PRESS: AP, Reuters, TASS styles, wartime censorship is real. (2) VOX POPULI: British civilians exhausted after six years; American families wanting boys home; Soviet citizens who lost twenty million dead; Poles and liberated Europeans terrified about their fate. (3) RUMOR MILL: leaks from Livadia — Roosevelt's health, secret protocols — mark UNCONFIRMED. RULES: Never speak for student roles. Exist in the present. Under 150 words unless asked for a full dispatch.`
+  }
+};
+
+// ─── State ────────────────────────────────────────────────────────────────────
+let curSection='A', curSc='july1914', curMode='press', chatHistory=[], isTyping=false;
+let recognition=null, isRecording=false, recTranscript='';
+
+// ─── Storage (localStorage) ───────────────────────────────────────────────────
+function storageKey(t){ return `rttp:${curSection}:${curSc}:${t}`; }
+function archiveKey(){ return `rttp:${curSection}:archive:${curSc}`; }
+
+function save(k, v){
+  try { localStorage.setItem(k, JSON.stringify(v)); showSaved(); } catch(e){}
+}
+function load(k){
+  try { const r=localStorage.getItem(k); return r ? JSON.parse(r) : null; } catch(e){ return null; }
+}
+function del(k){ try{ localStorage.removeItem(k); } catch(e){} }
+
+function showSaved(){
+  const el=document.getElementById('save-indicator');
+  el.textContent='Saved · '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  clearTimeout(el._t); el._t=setTimeout(()=>{ el.textContent=''; },2500);
+}
+
+// ─── Section / Scenario ───────────────────────────────────────────────────────
+function setSection(s){
+  if(curSection===s) return;
+  curSection=s;
+  document.querySelectorAll('.sec-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sec-btn-'+s).classList.add('active');
+  chatHistory=[];
+  loadState(); clearChat();
+  sysMsg('Section '+s+' — '+SC_DATA[curSc].label);
+  document.getElementById('speech-section-label').textContent='Speaker — Section '+s;
+  document.getElementById('archive-label').textContent='Section '+s+' — '+SC_DATA[curSc].label;
+  updateArchiveDisplay();
+}
+
+function setSc(s){
+  curSc=s; chatHistory=[];
+  document.querySelectorAll('.sc-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('btn-'+s).classList.add('active');
+  populateEvents(); populateFactionSelect();
+  loadState(); clearChat();
+  sysMsg(SC_DATA[s].label+' · Section '+curSection);
+  document.getElementById('archive-label').textContent='Section '+curSection+' — '+SC_DATA[s].label;
+  updateArchiveDisplay();
+}
+
+// ─── Moods ────────────────────────────────────────────────────────────────────
+function loadState(){
+  const saved=load(storageKey('moods'));
+  SC_DATA[curSc]._moods=saved||SC_DATA[curSc].defaultMoods.map(m=>({...m}));
+  renderMoods();
+}
+
+function getMoods(){ return SC_DATA[curSc]._moods||SC_DATA[curSc].defaultMoods.map(m=>({...m})); }
+
+function renderMoods(){
+  document.getElementById('mood-grid').innerHTML=getMoods().map(m=>{
+    const k=m.name.replace(/[\s\/]/g,'_');
+    return `<div class="mood-row"><span class="mood-faction">${m.name}</span><span class="mood-label" id="mood-${k}">${m.label}</span></div>`;
+  }).join('');
+}
+
+function setMoodLabel(name, label){
+  const k=name.replace(/[\s\/]/g,'_');
+  const el=document.getElementById('mood-'+k); if(!el) return;
+  el.textContent=label; el.classList.add('updating');
+  setTimeout(()=>el.classList.remove('updating'),1500);
+  const m=getMoods().find(x=>x.name===name); if(m) m.label=label;
+}
+
+function saveMoods(){ save(storageKey('moods'), getMoods()); }
+
+function resetMoods(){
+  SC_DATA[curSc]._moods=SC_DATA[curSc].defaultMoods.map(m=>({...m}));
+  renderMoods(); save(storageKey('moods'), SC_DATA[curSc]._moods);
+  sysMsg('Public mood reset to defaults.');
+}
+
+async function updateMoodsFromClaude(trigger){
+  const sc=SC_DATA[curSc];
+  const moodList=getMoods().map(m=>`${m.name}: ${m.label}`).join('\n');
+  const prompt=`You are updating qualitative public mood labels for a Reacting to the Past simulation.\n\nScenario: ${sc.label}\nContext: ${sc.moodCtx}\n\nCurrent moods:\n${moodList}\n\nTriggering event: "${trigger}"\n\nUpdate only moods that would plausibly shift. Labels must be concise (under 12 words), historically grounded, present tense.\n\nRespond ONLY with a JSON array, no other text:\n[{"name":"Faction name exactly as listed","label":"updated mood label"},...]`;
+  try{
+    const text=await callClaude('You update historical public mood labels. Respond only with a JSON array, no markdown, no explanation.',[{role:'user',content:prompt}],400);
+    const updates=JSON.parse(text.replace(/```json|```/g,'').trim());
+    updates.forEach(u=>{ if(u.name&&u.label) setMoodLabel(u.name,u.label); });
+    saveMoods();
+  }catch(e){}
+}
+
+// ─── Selects ──────────────────────────────────────────────────────────────────
+function populateEvents(){
+  const sel=document.getElementById('event-select'); sel.innerHTML='';
+  SC_DATA[curSc].events.forEach(e=>{ const o=document.createElement('option'); o.value=e; o.textContent=e; sel.appendChild(o); });
+}
+
+function populateFactionSelect(){
+  const sel=document.getElementById('sp-faction'); sel.innerHTML='<option value="">Select faction…</option>';
+  SC_DATA[curSc].factionNames.forEach(f=>{ const o=document.createElement('option'); o.value=f; o.textContent=f; sel.appendChild(o); });
+}
+
+// ─── Chat UI ──────────────────────────────────────────────────────────────────
+function clearChat(){ document.getElementById('chat-area').innerHTML=''; }
+
+function addMsg(text, role, source){
+  const area=document.getElementById('chat-area');
+  const d=document.createElement('div'); d.className='msg '+(role==='user'?'user':'assistant');
+  const av=document.createElement('div'); av.className='av'; av.textContent=role==='user'?'YOU':'NWS';
+  const b=document.createElement('div'); b.className='bub'; b.textContent=text;
+  if(source&&role!=='user'){ const s=document.createElement('div'); s.className='src'; s.textContent=source; b.appendChild(document.createElement('br')); b.appendChild(s); }
+  d.appendChild(av); d.appendChild(b); area.appendChild(d); area.scrollTop=area.scrollHeight;
+}
+
+function sysMsg(text){
+  const area=document.getElementById('chat-area');
+  const d=document.createElement('div'); d.className='sysmsg'; d.textContent='— '+text+' —';
+  area.appendChild(d); area.scrollTop=area.scrollHeight;
+}
+
+function showTyping(){
+  const area=document.getElementById('chat-area');
+  const d=document.createElement('div'); d.className='msg assistant'; d.id='typing-msg';
+  const av=document.createElement('div'); av.className='av'; av.textContent='NWS';
+  const b=document.createElement('div'); b.className='bub';
+  b.innerHTML='<div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+  d.appendChild(av); d.appendChild(b); area.appendChild(d); area.scrollTop=area.scrollHeight;
+}
+function removeTyping(){ const e=document.getElementById('typing-msg'); if(e) e.remove(); }
+
+// ─── Mode / Tab ───────────────────────────────────────────────────────────────
+function setMode(m){
+  curMode=m;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  document.getElementById('chip-'+m).classList.add('active');
+  const ph={press:'Ask for a dispatch, headline, or bulletin.',vox:'Ask what the people are saying.',rumor:'Request an unconfirmed report or rumor.',instructor:'Inject events or ask historical questions.'};
+  document.getElementById('chat-input').placeholder=ph[m];
+  document.getElementById('inject-bar').style.display=m==='instructor'?'block':'none';
+}
+
+function setTab(t){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+t).classList.add('active');
+}
+
+// ─── Claude API (via proxy) ───────────────────────────────────────────────────
+function getModeInst(){
+  return{
+    press:'Respond ONLY as The Press. Write a newspaper dispatch, headline, or bulletin — dramatic and period-appropriate.',
+    vox:'Respond ONLY as Vox Populi. Speak as the voice of the people — show national differences where relevant.',
+    rumor:'Respond ONLY as the Rumor Mill. Deliver unverified atmospheric intelligence. Begin with UNCONFIRMED: or RUMOR:.',
+    instructor:'You may answer questions about the simulation and historical context directly and accurately.'
+  }[curMode]||'';
+}
+
+function getSource(){
+  const pool=SC_DATA[curSc].sources[curMode==='instructor'?'press':curMode]||['Correspondent'];
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+
+async function callClaude(sys, msgs, max=900){
+  // Calls the local proxy — API key never exposed to browser
+  const r=await fetch('/api/chat',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514', max_tokens:max, system:sys, messages:msgs})
+  });
+  const d=await r.json();
+  if(d.error) throw new Error(d.error);
+  return d.content?.[0]?.text||'No response.';
+}
+
+// ─── Send message ─────────────────────────────────────────────────────────────
+async function sendMsg(){
+  if(isTyping) return;
+  const inp=document.getElementById('chat-input');
+  const text=inp.value.trim(); if(!text) return;
+  inp.value=''; addMsg(text,'user'); chatHistory.push({role:'user',content:text});
+  isTyping=true; document.getElementById('send-btn').disabled=true; showTyping();
+  try{
+    const reply=await callClaude(SC_DATA[curSc].system+'\n\nCURRENT MODE: '+getModeInst(), chatHistory.slice(-12));
+    removeTyping(); addMsg(reply,'assistant',getSource());
+    chatHistory.push({role:'assistant',content:reply});
+    if(/war|mobilise|ultimatum|attack|declare|offensive|surrender|peace|negotiate|concession|agreement|withdraw/i.test(text+reply)){
+      updateMoodsFromClaude(text+' — '+reply.substring(0,200));
+    }
+  }catch(e){ removeTyping(); addMsg('TRANSMISSION INTERRUPTED.','assistant'); }
+  isTyping=false; document.getElementById('send-btn').disabled=false;
+}
+
+// ─── Inject event ─────────────────────────────────────────────────────────────
+async function injectEvent(){
+  const ev=document.getElementById('event-select').value; if(!ev) return;
+  sysMsg('EVENT: '+ev);
+  const prompt=`Instructor injected this breaking news: "${ev}". Respond with: (1) an urgent Press bulletin, (2) Vox Populi reaction for at least two different national publics, (3) one brief UNCONFIRMED rumor. Under 200 words total.`;
+  chatHistory.push({role:'user',content:prompt});
+  isTyping=true; document.getElementById('send-btn').disabled=true; showTyping();
+  try{
+    const reply=await callClaude(SC_DATA[curSc].system, chatHistory.slice(-10));
+    removeTyping(); addMsg(reply,'assistant','BREAKING — '+SC_DATA[curSc].label);
+    chatHistory.push({role:'assistant',content:reply});
+    updateMoodsFromClaude(ev);
+  }catch(e){ removeTyping(); addMsg('TRANSMISSION INTERRUPTED.','assistant'); }
+  isTyping=false; document.getElementById('send-btn').disabled=false;
+}
+
+function handleKey(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendMsg(); } }
+
+// ─── Voice recording ──────────────────────────────────────────────────────────
+function toggleRecording(){
+  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){
+    document.getElementById('rec-status').textContent='Voice not supported here — type or paste instead.'; return;
+  }
+  if(isRecording){ stopRecording(); return; }
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  recognition=new SR(); recognition.continuous=true; recognition.interimResults=true; recognition.lang='en-US';
+  recognition.onstart=()=>{ isRecording=true; document.getElementById('rec-btn').textContent='Mic: Stop'; document.getElementById('rec-btn').classList.add('recording'); document.getElementById('rec-status').textContent='Recording…'; document.getElementById('rec-status').classList.add('live'); };
+  recognition.onresult=(e)=>{ let interim='',final=''; for(let i=e.resultIndex;i<e.results.length;i++){ if(e.results[i].isFinal) final+=e.results[i][0].transcript+' '; else interim+=e.results[i][0].transcript; } recTranscript+=final; document.getElementById('transcript-box').value=recTranscript+interim; };
+  recognition.onerror=()=>stopRecording();
+  recognition.onend=()=>{ if(isRecording) stopRecording(); };
+  recognition.start();
+}
+
+function stopRecording(){
+  if(recognition) recognition.stop();
+  isRecording=false; recTranscript=document.getElementById('transcript-box').value;
+  document.getElementById('rec-btn').textContent='Mic: Start'; document.getElementById('rec-btn').classList.remove('recording');
+  document.getElementById('rec-status').textContent='Recording stopped.'; document.getElementById('rec-status').classList.remove('live');
+}
+
+function clearSpeech(){
+  recTranscript=''; document.getElementById('transcript-box').value=''; document.getElementById('speech-result').innerHTML='';
+  document.getElementById('rec-status').textContent='Ready — or type / paste below'; document.getElementById('rec-status').classList.remove('live');
+}
+
+// ─── Analyze speech ───────────────────────────────────────────────────────────
+async function analyzeSpeech(){
+  const transcript=document.getElementById('transcript-box').value.trim();
+  const speaker=document.getElementById('sp-name').value.trim()||'Unknown speaker';
+  const faction=document.getElementById('sp-faction').value||'Unknown faction';
+  if(!transcript){ document.getElementById('rec-status').textContent='Please record or enter a speech first.'; return; }
+  const btn=document.getElementById('analyze-btn');
+  btn.disabled=true; btn.textContent='Analyzing…';
+  document.getElementById('speech-result').innerHTML='<div class="result-card" style="color:#aaa;">Processing…</div>';
+  const sc=SC_DATA[curSc];
+  const prompt=`You are analyzing a student speech in a Reacting to the Past simulation: ${sc.label}.\nSpeaker: ${speaker} | Faction: ${faction}\n\nSPEECH:\n"${transcript}"\n\nRespond in EXACTLY this format:\n\nSUMMARY:\n[2–3 sentences summarizing the core argument in neutral historical language]\n\nPRESS DISPATCH:\n[3–4 sentence newspaper dispatch in period voice with dateline, vivid and period-appropriate for ${sc.label}]\n\nFACTION REACTIONS:\n[3–4 most relevant factions, one sentence each: "Faction name: reaction." Indicate supportive, hostile, or mixed.]\n\nHISTORICAL NOTES:\n[1–2 constructive sentences on strengths, anachronisms, or missed historical opportunities]`;
+  try{
+    const result=await callClaude('You are an expert historian and educational facilitator for Reacting to the Past simulations. Analyze student speeches with historical rigor and pedagogical care.',[{role:'user',content:prompt}],1200);
+    const secs={};
+    ['SUMMARY','PRESS DISPATCH','FACTION REACTIONS','HISTORICAL NOTES'].forEach(s=>{
+      const m=result.match(new RegExp(s+':\\s*([\\s\\S]*?)(?=(?:SUMMARY:|PRESS DISPATCH:|FACTION REACTIONS:|HISTORICAL NOTES:|$))'));
+      if(m) secs[s]=m[1].trim();
+    });
+    document.getElementById('speech-result').innerHTML=`<div class="result-card">
+      <div class="result-section"><div class="result-label">Summary</div>${secs['SUMMARY']||''}</div>
+      <div class="result-section"><div class="result-label">Press dispatch</div><em style="font-family:'IM Fell English',serif;font-size:12px;">${secs['PRESS DISPATCH']||''}</em></div>
+      <div class="result-section"><div class="result-label">Faction reactions</div>${secs['FACTION REACTIONS']||''}</div>
+      <div class="result-section"><div class="result-label">Historical notes</div>${secs['HISTORICAL NOTES']||''}</div>
+    </div>`;
+    await updateMoodsFromClaude(`Speech by ${speaker} (${faction}): ${transcript.substring(0,300)}`);
+    const entry={id:Date.now(),speaker,faction,
+      time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),
+      date:new Date().toLocaleDateString([],{month:'short',day:'numeric'}),
+      summary:secs['SUMMARY']||'', press:secs['PRESS DISPATCH']||'',
+      factionReactions:secs['FACTION REACTIONS']||'', historicalNotes:secs['HISTORICAL NOTES']||'',
+      transcript, scenario:sc.label};
+    const existing=load(archiveKey())||[];
+    existing.unshift(entry);
+    save(archiveKey(), existing);
+    updateArchiveDisplay();
+    if(secs['PRESS DISPATCH']){
+      chatHistory.push({role:'user',content:`[SPEECH ALERT] ${speaker} (${faction}) just delivered a speech. Press dispatch: ${secs['PRESS DISPATCH']}`});
+      chatHistory.push({role:'assistant',content:secs['PRESS DISPATCH']});
+    }
+  }catch(e){ document.getElementById('speech-result').innerHTML='<div class="result-card">Analysis failed — please try again.</div>'; }
+  btn.disabled=false; btn.textContent='Analyze Speech';
+}
+
+// ─── Archive ──────────────────────────────────────────────────────────────────
+function updateArchiveDisplay(){
+  const archive=load(archiveKey())||[];
+  document.getElementById('arch-count').textContent=archive.length;
+  const list=document.getElementById('archive-list');
+  if(archive.length===0){ list.innerHTML='<div class="arch-empty">No speeches recorded yet for this section and scenario.</div>'; return; }
+  list.innerHTML=archive.map(e=>`
+    <div class="arch-card">
+      <div class="arch-meta">
+        <span class="arch-speaker">${e.speaker}</span>
+        <span class="arch-faction">${e.faction}</span>
+        <span class="arch-time">${e.date||''} ${e.time}</span>
+      </div>
+      <div class="arch-summary">${e.summary}</div>
+      <div class="arch-press">${e.press}</div>
+      ${e.historicalNotes?`<div class="arch-note">Note: ${e.historicalNotes}</div>`:''}
+      <button class="arch-toggle" onclick="toggleTranscript(${e.id})">Show transcript</button>
+      <div id="tr-${e.id}" class="arch-transcript" style="display:none;">${e.transcript}</div>
+    </div>`).join('');
+}
+
+function toggleTranscript(id){
+  const el=document.getElementById('tr-'+id); if(!el) return;
+  const btn=el.previousElementSibling;
+  if(el.style.display==='none'){ el.style.display='block'; btn.textContent='Hide transcript'; }
+  else{ el.style.display='none'; btn.textContent='Show transcript'; }
+}
+
+function clearArchive(){
+  if(!confirm('Clear the entire archive for Section '+curSection+' — '+SC_DATA[curSc].label+'? This cannot be undone.')) return;
+  del(archiveKey()); updateArchiveDisplay();
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+setSc('july1914');
+setMode('press');
+setTab('correspondent');
+</script>
+</body>
+</html>
