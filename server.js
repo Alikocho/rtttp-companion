@@ -33,10 +33,30 @@ app.post('/api/chat', async (req, res) => {
 // archive survives redeploys, not just restarts. Without a volume attached,
 // this falls back to a local "data/" folder next to the server, which
 // Railway's ephemeral filesystem will wipe on the next deploy.
-const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
-const STORE_FILE = path.join(DATA_DIR, 'store.json');
+//
+// If the requested DATA_DIR can't be created or written to (wrong path,
+// permissions, volume not yet mounted at boot), we fall back rather than
+// crash the whole server — a live class needs the app up even if the
+// archive can't persist that session, and the fallback is logged loudly
+// so the misconfiguration is easy to spot in Railway's deploy logs.
+function resolveDataDir(requested) {
+  try {
+    fs.mkdirSync(requested, { recursive: true });
+    fs.accessSync(requested, fs.constants.W_OK);
+    console.log(`Storage directory: ${requested}`);
+    return requested;
+  } catch (err) {
+    const fallback = path.join(__dirname, 'data');
+    console.error(`WARNING: could not use DATA_DIR="${requested}" (${err.code || err.message}).`);
+    console.error(`WARNING: falling back to "${fallback}" — this will NOT survive a redeploy.`);
+    console.error('WARNING: check that the Railway Volume is attached and mounted at this exact path.');
+    fs.mkdirSync(fallback, { recursive: true });
+    return fallback;
+  }
+}
 
-fs.mkdirSync(DATA_DIR, { recursive: true });
+const DATA_DIR = resolveDataDir(process.env.DATA_DIR || path.join(__dirname, 'data'));
+const STORE_FILE = path.join(DATA_DIR, 'store.json');
 
 let store = {};
 try {
